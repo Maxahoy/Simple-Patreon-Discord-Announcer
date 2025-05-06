@@ -29,8 +29,8 @@ jobs:
           patreon-last-post-
 
     - name: Install dependencies 
-      run: | # or pip install requests beautifulsoup4
-        pip install -r requirements.txt  
+      run: | 
+        pip install requests beautifulsoup4
 
     - name: Run Femmebot Scraper
       env:
