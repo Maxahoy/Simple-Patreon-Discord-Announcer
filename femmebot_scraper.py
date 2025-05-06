@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 
 # === CONFIGURATION ===
-CREATOR_USERNAME = "drmthesciencefemme"
+CREATOR_USERNAME = "TestingMyDiscordBot"
 WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK_URL")
 LAST_POST_FILE = "last_post.txt"
 

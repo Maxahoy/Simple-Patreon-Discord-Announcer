@@ -1,0 +1,45 @@
+name: Patreon Post Notifier
+
+on:
+  schedule:
+    # Runs every 30 minutes
+    - cron: '*/30 * * * *'
+  workflow_dispatch: # allows manual run
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Restore last_post.txt from cache
+      id: cache
+      uses: actions/cache@v4
+      with:
+        path: last_post.txt
+        key: patreon-last-post-${{ github.run_id }}
+        restore-keys: |
+          patreon-last-post-
+
+    - name: Install dependencies 
+      run: | # or pip install requests beautifulsoup4
+        pip install -r requirements.txt  
+
+    - name: Run Femmebot Scraper
+      env:
+        DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+      run: |
+        python femmebot_scraper.py
+
+    - name: Save updated last_post.txt to cache
+      uses: actions/cache@v4
+      with:
+        path: last_post.txt
+        key: patreon-last-post-${{ github.run_id }}
