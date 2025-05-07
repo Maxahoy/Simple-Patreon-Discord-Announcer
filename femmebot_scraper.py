@@ -4,6 +4,7 @@ import requests
 from datetime import datetime
 
 # Load secrets from environment
+# CONFIGURATION: THESE NEED SETUP AS ENVIRONMENT VARIABLES IN GITHUB ACTIONS.
 ACCESS_TOKEN = os.getenv("PATREON_ACCESS_TOKEN")
 WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
 
@@ -13,6 +14,17 @@ HEADERS = {
 
 CACHE_FILE = "recent_posts.json"
 MAX_TRACKED_POSTS = 5
+
+# CONFIGURATION: USING TIER-SPECIFIC EMOJI'S WILL REQUIRE KNOWLEDGE OF YOUR TIER ID'S.
+# These can be identified using the script located in "testing/tier_identification.py", in a local environment.
+# Adding additional tiers is supported -- the code should handle additional tier emoji mappings gracefully.
+# Optional: Custom emojis or text for specific tier IDs
+TIER_EMOJI_MAP = {
+    "12345678": "🔥🔥",  # Example: top-tier patrons only
+    "87654321": "🧪🧪",  # Example: free-tier availability
+    # Add more as needed
+}
+DEFAULT_EMOJI = "📢"
 
 def get_campaign_id():
     url = "https://www.patreon.com/api/oauth2/v2/campaigns"
@@ -61,11 +73,26 @@ def load_cached_post_ids():
 def save_cached_post_ids(post_ids):
     with open(CACHE_FILE, "w") as f:
         json.dump(post_ids[:MAX_TRACKED_POSTS], f)
+        
+def format_discord_message(post):
+    title = post.get("title", "(Untitled)")
+    url = "https://www.patreon.com/" + post.get("url", "#")
+
+    # Grab the first tier ID (or none)
+    tier_ids = post.get("tier_ids", [])
+    matched_emoji = DEFAULT_EMOJI
+
+    for tier_id in tier_ids:
+        if tier_id in TIER_EMOJI_MAP:
+            matched_emoji = TIER_EMOJI_MAP[tier_id]
+            break
+
+    return f"{matched_emoji} New Patreon Post: [{title}]({url})"
+
 
 def send_to_discord(post):
-    base_url = "https://www.patreon.com"
-    url = f"{base_url}{post['url']}"
-    content = f"📢 New Patreon Post: [{post['title']}](<{url}>)"
+
+    content = format_discord_message(post)
     payload = {
         "username": "Femmebot",
         "content": content
