@@ -24,26 +24,33 @@ def get_campaign_id():
     campaigns = data.get("data", [])
     if not campaigns:
         raise Exception("No campaigns found for the access token provided.")
-
+    print("Campaign id: ", campaigns[0]["id"])
     return campaigns[0]["id"]  # Only use the first campaign found
 
 def fetch_latest_posts(campaign_id, limit=5):
-    url = f"https://www.patreon.com/api/oauth2/v2/campaigns/{campaign_id}/posts?sort=-published_at&page[count]={limit}"
-    response = requests.get(url, headers=HEADERS)
+    url = f"https://www.patreon.com/api/oauth2/v2/campaigns/{campaign_id}/posts"
+    params = {
+        "sort": "-published_at",
+        "page[count]": limit,
+        "fields[post]": "title,url,published_at"
+    }
+    response = requests.get(url, headers=HEADERS, params=params)
     if response.status_code != 200:
         raise Exception(f"Failed to fetch posts: {response.status_code} {response.text}")
 
     data = response.json()
     posts = data.get("data", [])
+    print(posts)
     return [
         {
             "id": post["id"],
-            "title": post["attributes"].get("title", "(Untitled)"),
-            "url": post["attributes"]["url"],
-            "published_at": post["attributes"].get("published_at", "")
+            "title": post.get("attributes", {}).get("title", "(Untitled)"),
+            "url": post.get("attributes", {}).get("url", "URL not found"),
+            "published_at": post.get("attributes", {}).get("published_at", "")
         }
         for post in posts
     ]
+
 
 def load_cached_post_ids():
     if not os.path.exists(CACHE_FILE):
@@ -69,7 +76,9 @@ def send_to_discord(post):
 
 def main():
     try:
+        print("Attempting to fetch campaign ID")
         campaign_id = get_campaign_id()  # No argument needed here
+        print("Campaign ID fetched.")
         posts = fetch_latest_posts(campaign_id)
 
         cached_ids = load_cached_post_ids()
