@@ -63,7 +63,9 @@ def save_cached_post_ids(post_ids):
         json.dump(post_ids[:MAX_TRACKED_POSTS], f)
 
 def send_to_discord(post):
-    content = f"📢 **New Patreon Post**: [{post['title']}]({post['url']})"
+    base_url = "https://www.patreon.com"
+    url = f"{base_url}{post['url']}"
+    content = f"📢 New Patreon Post: [{post['title']}](<{url}>)"
     payload = {
         "username": "Femmebot",
         "content": content
