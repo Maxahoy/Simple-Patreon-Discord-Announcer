@@ -20,8 +20,8 @@ MAX_TRACKED_POSTS = 10
 # Adding additional tiers is supported -- the code should handle additional tier emoji mappings gracefully.
 # Optional: Custom emojis or text for specific tier IDs
 TIER_EMOJI_MAP = {
-    "25836975": "🔥**SCI-330**🔥|",  # Example: top-tier patrons only
-    "25832397": "🧪**SCI-210**🧪|",  # Example: free-tier availability
+    "25836975": "🔥**Exclusive!**🔥|",  # Example: top-tier patrons only
+    "25832397": "🧪**Public Announcement!**🧪|",  # Example: free-tier availability
     # Add more as needed
 }
 DEFAULT_EMOJI = "📢"

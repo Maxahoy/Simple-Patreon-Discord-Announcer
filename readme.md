@@ -74,20 +74,39 @@ No need to manually activate anything—just commit or push to your repo, or wai
 
 ## ⚙️ Optional: Customizing Messages
 
-In `femmebot_scraper.py`, you can modify the `format_discord_message()` function to:
+⚙️ Optional: Customizing Messages by Tier
 
-- Add custom emojis based on tier IDs
-- Format titles or add creator branding
+To customize Discord messages with tier-specific text or emojis, update the TIER_EMOJI_MAP section in femmebot_scraper.py:
 
-> Tier IDs are exposed via the Patreon API and can be added to a dictionary inside the script.
+```
+TIER_EMOJI_MAP = {
+    "12345678": "🔥**Exclusive!**🔥|",  # Example: top-tier patrons only
+    "87654321": "🧪**Public!**🧪|",  # Example: free-tier availability
+    # Add more as needed
+}
+DEFAULT_EMOJI = "📢New Post!"
+```
+
+🔍 How to Find Your Tier IDs
+
+To look up your Patreon tier IDs:
+
+    Run setup/tier_identifier.py locally.
+
+    The script will print out a list of tier IDs, names, descriptions, and pricing.
+
+    Copy the IDs you want into the TIER_EMOJI_MAP to customize messages.
+
+    The script uses your PATREON_ACCESS_TOKEN—make sure it's set as an environment variable or hardcoded while testing.
 
 ---
 
 ## 🛠 Files and Behavior
 
 - `femmebot_scraper.py`: Main script
+- `setup/tier_identify.py`: Optional setup script; identifies and prints your unique tier levels, to enable unique discord messages per tier.
 - `.github/workflows/patreon-bot.yml`: Defines schedule (default: every 30 mins)
-- `recent_posts.json`: Stores last 5 post IDs to avoid duplicates
+- `recent_posts.json`: Stores recent post IDs to avoid duplicates
 
 ---
 
@@ -105,15 +124,6 @@ A: Not yet, but tier-based message formatting is already supported and can be ex
 **Q: Can I run this locally instead of GitHub Actions?**  
 A: Yes—just export your secrets as environment variables and run `femmebot_scraper.py`.
 
----
-
-## 🧾 License
-
-MIT License. Feel free to fork, modify, and contribute!
-
----
-
-## 👩‍🔬 Credits
-
-Created with love for [Your Creator Name Here].
+**Q: How do I enable unique message formats for each tier?**  
+A: You'll need to identify your patron tier ID's; each tier has a unique ID in Patreon's backend. These can be identified by running `setup/tier_identifier.py` locally.
 
