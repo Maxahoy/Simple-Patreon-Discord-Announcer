@@ -22,7 +22,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: recent_posts.json
-          key: patreon-cache-file
+          key: patreon-cache-file-${{ hashFiles('recent_posts.json') }}
+          restore-keys: |
+            patreon-cache-file-
 
       - name: Install dependencies
         run: pip install requests

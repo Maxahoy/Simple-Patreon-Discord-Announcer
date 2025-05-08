@@ -75,47 +75,75 @@ def fetch_latest_posts(campaign_id, limit=10):
 
     return sorted_posts[:limit]
 
+def identify_tiers(posts):
+    """
+    Given a list of post objects, return a set of all unique tier IDs referenced in the posts.
+    """
+    tier_ids = set()
+    for post in posts:
+        tiers = post.get("attributes", {}).get("tiers", [])
+        tier_ids.update(tiers)
+    return tier_ids
 
-# Function to fetch tier details by tier IDs
-def fetch_tier_details(tier_ids):
-    tier_url = "https://www.patreon.com/api/oauth2/v2/tiers"
+
+def fetch_tier_metadata_from_campaign(campaign_id, target_tier_ids=None):
+    """
+    Fetch all tiers from the campaign and print details for the provided tier IDs.
+    If target_tier_ids is None, prints all tiers.
+    """
+    url = f"https://www.patreon.com/api/oauth2/v2/campaigns/{campaign_id}"
     headers = {
         "Authorization": f"Bearer {ACCESS_TOKEN}"
     }
-    tier_names = []
-    
-    # Fetch tier details for each tier ID
-    for tier_id in tier_ids:
-        params = {
-            "filter[id]": tier_id,
-            "fields[tier]": "title",  # Only fetch tier title
+    params = {
+        "include": "tiers",
+        "fields[tier]": "title,description,amount_cents"
+    }
+
+    response = requests.get(url, headers=headers, params=params)
+
+    if response.status_code != 200:
+        print(f"Error fetching campaign tiers: {response.status_code}")
+        print(response.text)
+        return {}
+
+    data = response.json()
+    included = data.get("included", [])
+    tier_details = {}
+
+    for item in included:
+        if item.get("type") != "tier":
+            continue
+
+        tier_id = int(item["id"])  # Convert to int for matching
+        if target_tier_ids and tier_id not in target_tier_ids:
+            continue
+
+        attributes = item.get("attributes", {})
+        title = attributes.get("title", "Unknown Title")
+        description = attributes.get("description", "No description")
+        amount_cents = attributes.get("amount_cents", 0)
+        amount_usd = f"${amount_cents / 100:.2f}"
+
+        tier_details[tier_id] = {
+            "title": title,
+            "description": description,
+            "amount_usd": amount_usd
         }
-        
-        response = requests.get(tier_url, headers=headers, params=params)
-        
-        if response.status_code == 200:
-            tiers = response.json()
-            
-            if tiers['data']:
-                tier = tiers['data'][0]  # Get the first (and only) tier
-                tier_name = tier.get('attributes', {}).get('title', 'Unknown Tier')
-                tier_names.append(tier_name)
-            else:
-                print(f"No data found for tier ID {tier_id}")
-        else:
-            print(f"Error fetching tier {tier_id}: {response.status_code}")
-            print(response.text)
-    
-    if tier_names:
-        print("Tiers associated with this post:")
-        for tier_name in tier_names:
-            print(f" - {tier_name}")
-    else:
-        print("No tiers found.")
+
+        print(f"Tier ID: {tier_id}")
+        print(f"  Title      : {title}")
+        print(f"  Description: {description}")
+        print(f"  Amount     : {amount_usd}")
+        print()
+
+    return tier_details
 
 
 if __name__ == "__main__":
     campaign_id = get_campaign_id()
     if campaign_id:
         posts = fetch_latest_posts(campaign_id, limit=5)  # Fetch the last 5 posts
-        print(posts)
+        tiers = identify_tiers(posts)
+        print("Tier ID's: ", tiers)
+        fetch_tier_metadata_from_campaign(campaign_id, tiers)
