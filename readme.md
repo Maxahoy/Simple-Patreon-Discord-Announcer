@@ -1,4 +1,4 @@
-# 🧪 FemmeBot Patreon-to-Discord Poster
+# Simple-Patreon-Discord-Announcer
 
 This GitHub Actions bot checks a creator's Patreon page for new posts and notifies a Discord channel via webhook—automatically and securely.
 
@@ -72,11 +72,27 @@ No need to manually activate anything—just commit or push to your repo, or wai
 
 ---
 
+## 🤖 Optional: Customizing Your Bot's Appearance
+
+🤖 Optional: Customizing Bot Names
+
+The bot's name is managed by Discord's webhook function, and is passed as part of the payload in the `patreon-announcer.py` file.
+
+To set a unique name for your bot's appearance in Discord, simply edit the `DISCORD_BOTNAME` at the beginning of the `patreon-announcer.py` file to your desired name.
+
+Further reading: https://birdie0.github.io/discord-webhooks-guide/structure/username.html
+
+🤖 Optional: Customizing Bot Avatars
+
+The bot's avatar is also managed by Discord's webhooks, and is passed similarly. Simply set the `DISCORD_BOT_AVATAR` variable in the `patreon-announcer.py` file to an image link, and the webhook should use your image. Avatars should follow the usual Discord avatar guidelines related to resolution and composition.
+
+Example: https://birdie0.github.io/discord-webhooks-guide/structure/avatar_url.html
+
 ## ⚙️ Optional: Customizing Messages
 
 ⚙️ Optional: Customizing Messages by Tier
 
-To customize Discord messages with tier-specific text or emojis, update the TIER_EMOJI_MAP section in femmebot_scraper.py:
+To customize Discord messages with tier-specific text or emojis, update the TIER_EMOJI_MAP section in patreon-announcer.py:
 
 ```
 TIER_EMOJI_MAP = {
@@ -103,10 +119,10 @@ To look up your Patreon tier IDs:
 
 ## 🛠 Files and Behavior
 
-- `femmebot_scraper.py`: Main script
+- `patreon-announcer.py`: Main script
 - `setup/tier_identify.py`: Optional setup script; identifies and prints your unique tier levels, to enable unique discord messages per tier.
 - `.github/workflows/patreon-bot.yml`: Defines schedule (default: every 30 mins)
-- `recent_posts.json`: Stores recent post IDs to avoid duplicates
+- `recent_posts.json`: Stores recent post IDs to avoid duplicates. Generated as part of your Github Actions workflow and cached between runs.
 
 ---
 
@@ -122,7 +138,7 @@ A: Make sure:
 A: Not yet, but tier-based message formatting is already supported and can be extended.
 
 **Q: Can I run this locally instead of GitHub Actions?**  
-A: Yes—just export your secrets as environment variables and run `femmebot_scraper.py`.
+A: Yes—just export your secrets as environment variables and run `patreon-announcer.py`.
 
 **Q: How do I enable unique message formats for each tier?**  
 A: You'll need to identify your patron tier ID's; each tier has a unique ID in Patreon's backend. These can be identified by running `setup/tier_identifier.py` locally.

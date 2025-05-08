@@ -15,6 +15,11 @@ HEADERS = {
 CACHE_FILE = "recent_posts.json"
 MAX_TRACKED_POSTS = 10
 
+DISCORD_BOTNAME = "Patreon Announcer"
+# add a link to an avatar if you want; otherwise, leaving this field blank will use the standard discord default avatar.
+#Example: https://birdie0.github.io/discord-webhooks-guide/structure/avatar_url.html
+DISCORD_BOT_AVATAR = ""
+
 # CONFIGURATION: USING TIER-SPECIFIC EMOJI'S WILL REQUIRE KNOWLEDGE OF YOUR TIER ID'S.
 # These can be identified using the script located in "setup/tier_identification.py", in a local environment.
 # Adding additional tiers is supported -- the code should handle additional tier emoji mappings gracefully.
@@ -129,10 +134,13 @@ def send_to_discord(post):
 
     content = format_discord_message(post)
     payload = {
-        "username": "FemmeBot",
+        "username": DISCORD_BOTNAME,
         "content": content
         # No avatar_url provided — will use Discord's default
     }
+    
+    if DISCORD_BOT_AVATAR:
+        payload["avatar_url"] = DISCORD_BOT_AVATAR
 
     response = requests.post(WEBHOOK_URL, json=payload)
     if response.status_code != 204:
